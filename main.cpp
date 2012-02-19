@@ -12,33 +12,22 @@
 #include "ai/randombot.h"
 #include "ui/Text.h"
 
-const int TOTAL_PLAYERS = 10;
+const int TOTAL_PLAYERS = 2;
 
 std::string PlayerName(int player)
 {
-    if(player != 0)
-    {
-        std::stringstream name;
-        name << "BasicBot(5, ";
-        name << 8 + (player-1)%3;
-        name << " ,";
-        name << 6 + (player-1)/3;
-        name << ")";
-
-        return name.str();
-    }
+    if(player == 0)
+        return "ScratchBot";
     else
-    {
         return "BasicBot";
-    }
 }
 
 Bot* GenPlayer(int player, Position p)
 {
     if(player == 0)
+        return new ScratchBot(p);
+    else
         return new BasicBot(p);
-
-    return new BasicBot(p, 5, 8 + (player-1)%3, 6 + (player-1)/3);
 }
 
 void ReturnPlayer(Bot* bot)

@@ -8,6 +8,7 @@ class Bot
 {
 public:
     Bot(Position p) : m_position(p) { }
+    virtual ~Bot() {}
     void Move(EuchreGame& g);
 
     // Hooks

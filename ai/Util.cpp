@@ -219,6 +219,10 @@ void LeadHighestTrumpWhenCalling(std::vector<Card>& cards, const EuchreGame& gam
     }
 }
 
+// This is one area ripe for improvement. We don't really want to lead non-top
+// trump when we called it (playing an off ace or lower trump to draw out 
+// the top trump would be better). But BasicBot by definition doesn't look
+// beyond the current Trick, so we have no model for what the best trump is.
 void LeadBestCard(std::vector<Card>& cards, const EuchreGame& game)
 {
     // Rule not relevant if not leading

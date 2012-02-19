@@ -3,6 +3,7 @@
 #include <random>
 #include <ctime>
 #include "BotBase.h"
+#include "Util.h"
 
 class BasicBot : public Bot
 {
@@ -19,6 +20,10 @@ public:
     virtual void Discard(EuchreGame& g);
     virtual void Play(EuchreGame& g);
 
+    // Hooks
+    virtual Rule* GetRules() const;
+    virtual int GetRuleCount() const;
+
 private:
     std::mt19937 gen;
 
@@ -28,6 +33,18 @@ private:
     int m_ourAloneOrder;
     int m_oppAloneOrder;
     int m_aloneBid;
+};
+
+// ScratchBot is the guy I play around with to try and improve over
+// the current version of BasicBot. Generally if I find something
+// I'll push it back into BasicBot.
+class ScratchBot : public BasicBot
+{
+public:
+    ScratchBot(Position p) : BasicBot(p) { }
+
+    virtual Rule* GetRules() const;
+    virtual int GetRuleCount() const;
 };
 
 #endif

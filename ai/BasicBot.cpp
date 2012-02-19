@@ -96,23 +96,35 @@ void BasicBot::Discard(EuchreGame& g)
     g.Discard(g.GetCurrentHand()[bestHand]);
 }
 
-Rule rules[] = {
+
+Rule bbrules[] = {
     &LegalCards,
-    &TryToWinTrick,
     &DontTrumpParntersAce,
     &AlwaysTrumpPartnersKing,
     &LeadTrumpToParnersCall,
     &DontLeadTrumpToOppCall,
     &LeadHighestTrumpWhenCalling,
     &LeadBestCard,
+    &TryToWinTrick,
     &PlayLowestCard
 };
+
+Rule* BasicBot::GetRules() const
+{
+    return bbrules;
+}
+
+int BasicBot::GetRuleCount() const
+{
+    return sizeof(bbrules) / sizeof(bbrules[0]);
+}
 
 void BasicBot::Play(EuchreGame& g)
 {
     std::vector<Card> hand = g.GetCurrentHand();
+    Rule* rules = GetRules();
 
-    for(int i = 0; i < sizeof(rules) / sizeof(rules[0]); ++i)
+    for(int i = 0; GetRuleCount(); ++i)
     {
         (*rules[i])(hand, g);
         if(hand.size() == 1)
@@ -121,4 +133,26 @@ void BasicBot::Play(EuchreGame& g)
 
     assert(hand.size() > 0);
     g.Play(hand.size() > 1 ? hand[gen() % hand.size()] : hand[0]);
+}
+
+Rule srules[] = {
+    &LegalCards,
+    &DontTrumpParntersAce,
+    &AlwaysTrumpPartnersKing,
+    &LeadTrumpToParnersCall,
+    &DontLeadTrumpToOppCall,
+    &LeadHighestTrumpWhenCalling,
+    &LeadBestCard,
+    &TryToWinTrick,
+    &PlayLowestCard
+};
+
+Rule* ScratchBot::GetRules() const
+{
+    return srules;
+}
+
+int ScratchBot::GetRuleCount() const
+{
+    return sizeof(srules) / sizeof(srules[0]);
 }
