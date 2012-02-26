@@ -20,12 +20,18 @@ public:
     virtual void Discard(EuchreGame& g);
     virtual void Play(EuchreGame& g);
 
-    // Hooks
+    // Hooks for Play
     virtual Rule* GetRules() const;
     virtual int GetRuleCount() const;
 
-private:
-    std::mt19937 gen;
+    // Hooks for Order
+    virtual bool ShouldSandbag(EuchreGame&) const { return false; }
+
+    // Hooks for Bid
+    virtual bool SituationalBid(EuchreGame&) const { return false; }
+
+protected:
+    mutable std::mt19937 gen;
 
     int m_ourMinOrder;
     int m_oppMinOrder;
@@ -43,8 +49,8 @@ class ScratchBot : public BasicBot
 public:
     ScratchBot(Position p) : BasicBot(p) { }
 
-    virtual Rule* GetRules() const;
-    virtual int GetRuleCount() const;
+    //bool ShouldSandbag(EuchreGame&) const;
+    bool SituationalBid(EuchreGame&) const;
 };
 
 #endif

@@ -66,6 +66,17 @@ struct CompletedRound : public Round
     int m_pointsScored[2];
 };
 
+class GameObserver
+{
+public:
+    virtual ~GameObserver() {}
+    virtual void RoundBegin(const Round& r) = 0;
+    virtual void RoundComplete(const CompletedRound& r) = 0;
+
+    virtual void TrickBegin(const Round& r, const Trick& t) = 0;
+    virtual void TrickComplete(const Round& r, const Trick& t) = 0;
+};
+
 class EuchreGame
 {
 public:
@@ -97,6 +108,12 @@ public:
 
     int GetWinningScore() const
     { return m_winning_score; }
+
+    void AddObserver(GameObserver* observer)
+    { m_observers.push_back(observer); }
+
+    void RemoveObserver(GameObserver* observer)
+    { m_observers.erase(std::remove(m_observers.begin(), m_observers.end(), observer), m_observers.end()); }
 
     // Actions
     void Start();
@@ -130,6 +147,12 @@ private:
 
     CompletedRound m_currentRound;
     std::vector<CompletedRound> m_completedRounds;
+
+    std::vector<GameObserver*> m_observers;
+    void _FireRoundBegin();
+    void _FireRoundComplete();
+    void _FireTrickBegin();
+    void _FireTrickComplete();
 };
 
 #endif

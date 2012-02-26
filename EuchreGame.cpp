@@ -108,6 +108,7 @@ void EuchreGame::Pass()
         else
         {
             m_completedRounds.push_back(m_currentRound);
+            _FireRoundComplete();
             _InitRound(GetNextPosition(GetCurrentTurn()));
         }
     }
@@ -200,6 +201,7 @@ void EuchreGame::Play(Card c)
     {
         Position trickWinner = GetCurrentTrick().GetCurrentWinner(trump);
         _GetCurrentTrick().m_winner = trickWinner;
+        _FireTrickComplete();
         m_currentRound.m_tricksPlayed++;
 
         // Wrap up the round
@@ -224,7 +226,7 @@ void EuchreGame::Play(Card c)
 
             // Store off this round
             m_completedRounds.push_back(m_currentRound);
-
+            _FireRoundComplete();
             if(m_score[0] >= m_winning_score || m_score[1] >= m_winning_score)
                 m_phase = Post;
             else
@@ -236,6 +238,7 @@ void EuchreGame::Play(Card c)
             _GetCurrentTrick().m_leader = trickWinner;
             assert(_GetCurrentTrick().m_cardsPlayed == 0);
             m_turn = trickWinner;
+            _FireTrickBegin();
         }
     }
     // Otherwise, just move on to the next player
@@ -313,4 +316,31 @@ void EuchreGame::_InitRound(Position dealer)
     }
 
     m_currentRound.m_upCard = m_deck.Deal();
+    _FireRoundBegin();
+}
+
+void EuchreGame::_FireRoundBegin()
+{
+    std::for_each(m_observers.begin(), m_observers.end(), [&](GameObserver* go){
+        go->RoundBegin(GetCurrentRound());
+    });
+}
+void EuchreGame::_FireRoundComplete()
+{
+    std::for_each(m_observers.begin(), m_observers.end(), [&](GameObserver* go){
+        go->RoundComplete(m_currentRound);
+    });
+}
+void EuchreGame::_FireTrickBegin()
+{
+    std::for_each(m_observers.begin(), m_observers.end(), [&](GameObserver* go){
+        go->TrickBegin(GetCurrentRound(), GetCurrentTrick());
+    });
+}
+void EuchreGame::_FireTrickComplete()
+{
+    std::for_each(m_observers.begin(), m_observers.end(), [&](GameObserver* go){
+        go->TrickComplete(GetCurrentRound(), GetCurrentTrick());
+    });
+
 }

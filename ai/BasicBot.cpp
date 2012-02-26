@@ -17,11 +17,17 @@ void BasicBot::Order(EuchreGame& g)
 
     if(handStrength >= aloneScore) 
     {
-        g.OrderUp(true);
+        if(ShouldSandbag(g))
+            g.Pass();
+        else
+            g.OrderUp(true);
     }
     else if(handStrength >= orderScore)
     {
-        g.OrderUp(false);
+        if(ShouldSandbag(g))
+            g.Pass();
+        else
+            g.OrderUp(false);
     }
     else
     {
@@ -67,7 +73,8 @@ void BasicBot::Bid(EuchreGame& g)
     }
     else
     {
-        g.Pass();
+        if(!SituationalBid(g))
+            g.Pass();
     }
 }
 
@@ -134,25 +141,63 @@ void BasicBot::Play(EuchreGame& g)
     assert(hand.size() > 0);
     g.Play(hand.size() > 1 ? hand[gen() % hand.size()] : hand[0]);
 }
-
-Rule srules[] = {
-    &LegalCards,
-    &DontTrumpParntersAce,
-    &AlwaysTrumpPartnersKing,
-    &LeadTrumpToParnersCall,
-    &DontLeadTrumpToOppCall,
-    &LeadHighestTrumpWhenCalling,
-    &LeadBestCard,
-    &TryToWinTrick,
-    &PlayLowestCard
-};
-
-Rule* ScratchBot::GetRules() const
+/*
+bool ScratchBot::ShouldSandbag(EuchreGame& g) const
 {
-    return srules;
+    // If we're to the right of the dealer, and we have a better suit to 
+    // call, pass and instead prefer to bid our better suit.
+    if(GetNextPosition(g.GetCurrentRound().m_dealer) == m_position)
+    {
+        Suit upCard = g.GetCurrentRound().m_upCard.suit;
+        int upValue = SimpleScore(g.GetCurrentHand(), upCard);
+
+        // Find the value of the other suits
+        Suit bestSuit = upCard;
+        int bestValue = 0;
+        for(int i = Hearts; i <= Spades; ++i)
+        {
+            if(static_cast<Suit>(i) == upCard)
+                continue;
+
+            int value = SimpleScore(g.GetCurrentHand(), static_cast<Suit>(i));
+
+            if(value > bestValue)
+            {
+                bestValue = value;
+                bestSuit = static_cast<Suit>(i);
+            }
+        }
+
+        // Ok, decision time. Also consider that ordering up gives opponents a trump.
+        upValue -= 2;
+
+        if(bestValue >= upValue)
+            return true; // Sandbag and call bestSuit when it's bidding time
+    }
+    return false;
 }
+*/
 
-int ScratchBot::GetRuleCount() const
+bool ScratchBot::SituationalBid(EuchreGame& g) const
 {
-    return sizeof(srules) / sizeof(srules[0]);
+    if(GetNextPosition(g.GetCurrentRound().m_dealer) == m_position)
+    {
+        if((g.GetCurrentRound().m_upCard.value == Jack) &&
+             (SimpleScore(g.GetCurrentHand(), SisterSuit(g.GetCurrentRound().m_upCard.suit)) >= 4)
+            )
+        {
+            if(gen() % 2)
+            {
+                m_play->FlagRound();
+                g.Call(SisterSuit(g.GetCurrentRound().m_upCard.suit), false);
+            }
+            else
+            {
+                m_pass->FlagRound();
+                g.Pass();
+            }
+            return true;
+        }
+    }
+    return false;
 }

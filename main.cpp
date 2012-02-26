@@ -16,7 +16,7 @@ const int TOTAL_PLAYERS = 2;
 
 std::string PlayerName(int player)
 {
-    if(player == 0)
+    if(player == 1)
         return "ScratchBot";
     else
         return "BasicBot";
@@ -24,7 +24,7 @@ std::string PlayerName(int player)
 
 Bot* GenPlayer(int player, Position p)
 {
-    if(player == 0)
+    if(player == 1)
         return new ScratchBot(p);
     else
         return new BasicBot(p);
@@ -62,19 +62,26 @@ int main()
             players[East] = GenPlayer(second, East);
             players[South] = GenPlayer(first, South);
             players[West] = GenPlayer(second, West);
+            Stats call, pass;
+
+            players[North]->SetStatsObjects(&call, &pass);
+            players[East]->SetStatsObjects(&call, &pass);
+            players[South]->SetStatsObjects(&call, &pass);
+            players[West]->SetStatsObjects(&call, &pass);
 
             int firstWins = 0;
             int secondWins = 0;
-            for(int i = 0; i < 10000; ++i)
+            for(int i = 0; i < 100000; ++i)
             {
                 EuchreGame g;
+                g.AddObserver(&call);
+                g.AddObserver(&pass);
                 g.Start();
                 while(!(g.GetCurrentPhase() == Post))
                 {
                     //print_game(g);
                     players[g.GetCurrentTurn()]->Move(g);
                 }
-
 
                 if(g.GetScore(0) >= g.GetWinningScore())
                     firstWins++;
@@ -84,7 +91,45 @@ int main()
 
             results[first][second] = (double)firstWins / (firstWins + secondWins);
             results[second][first] = (double)secondWins / (firstWins + secondWins);
-            std::cout << ".";
+
+            std::cout << "Count\tPlay\tPass\n";
+            std::cout.precision(3);
+
+            std::cout << call.m_numRoundsFlagged + pass.m_numRoundsFlagged;
+
+            // Call
+            double netPoints = 0.0;
+            for(int j = 0; j < 4; ++j)
+            {
+                double points = call.m_makerPoint[j] + (call.m_makerRanboard[j]*2) +
+                    (call.m_makerEuched[j]*-2) + call.m_lonerPoint[j] + (call.m_lonerRanboard[j]*4) +
+                    (call.m_lonerEuched[j]*-2);
+                if(j % 2)
+                    netPoints += points;
+                else
+                    netPoints -= points;
+            }
+            if(call.m_numRoundsFlagged)
+                std::cout << "\t" << netPoints/call.m_numRoundsFlagged;
+            else
+                std::cout << "\t...";
+
+            // Pass
+            netPoints = 0.0;
+            for(int j = 0; j < 4; ++j)
+            {
+                double points = pass.m_makerPoint[j] + (pass.m_makerRanboard[j]*2) +
+                    (pass.m_makerEuched[j]*-2) + pass.m_lonerPoint[j] + (pass.m_lonerRanboard[j]*4) +
+                    (pass.m_lonerEuched[j]*-2);
+                if(j % 2)
+                    netPoints += points;
+                else
+                    netPoints -= points;
+            }
+            if(pass.m_numRoundsFlagged)
+                std::cout << "\t" << netPoints/pass.m_numRoundsFlagged;
+            else
+                std::cout << "\t...";
 
             ReturnPlayer(players[North]);
             ReturnPlayer(players[East]);

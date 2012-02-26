@@ -8,15 +8,16 @@ bool HandHasCard(const std::vector<Card>& hand, Card c)
     return std::find(hand.begin(), hand.end(), c) != hand.end();
 }
 
+Suit SisterSuit(Suit s)
+{
+    return static_cast<Suit>((s+2) % 4);
+}
+
 Suit EffectiveSuit(Card c, Suit trump)
 {
     if(c.value == Jack)
     {
-        if( (trump == Hearts && c.suit == Diamonds)
-        ||  (trump == Diamonds && c.suit == Hearts)
-        ||  (trump == Spades && c.suit == Clubs)
-        ||  (trump == Clubs && c.suit == Spades)
-        )
+        if(SisterSuit(trump) == c.suit)
             return trump;
     }
 

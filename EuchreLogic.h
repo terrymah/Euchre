@@ -10,6 +10,7 @@ enum Position;
 
 bool HandHasCard(const std::vector<Card>& hand, Card c);
 Suit EffectiveSuit(Card c, Suit trump);
+Suit SisterSuit(Suit s);
 bool HandHasSuit(const std::vector<Card>& hand, Suit s, Suit trump);
 Position Partner(Position p);
 int Team(Position p);
