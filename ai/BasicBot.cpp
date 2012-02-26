@@ -141,7 +141,7 @@ void BasicBot::Play(EuchreGame& g)
     assert(hand.size() > 0);
     g.Play(hand.size() > 1 ? hand[gen() % hand.size()] : hand[0]);
 }
-/*
+
 bool ScratchBot::ShouldSandbag(EuchreGame& g) const
 {
     // If we're to the right of the dealer, and we have a better suit to 
@@ -172,12 +172,23 @@ bool ScratchBot::ShouldSandbag(EuchreGame& g) const
         upValue -= 2;
 
         if(bestValue >= upValue)
-            return true; // Sandbag and call bestSuit when it's bidding time
+        {
+            if(gen() % 2)
+            {
+                m_play->FlagRound();
+                return true; // Sandbag and call bestSuit when it's bidding time
+            }
+            else
+            {
+                m_pass->FlagRound();
+                return false;
+            }
+        }
     }
     return false;
 }
-*/
 
+/*
 bool ScratchBot::SituationalBid(EuchreGame& g) const
 {
     if(GetNextPosition(g.GetCurrentRound().m_dealer) == m_position)
@@ -201,3 +212,4 @@ bool ScratchBot::SituationalBid(EuchreGame& g) const
     }
     return false;
 }
+*/

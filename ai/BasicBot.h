@@ -49,8 +49,8 @@ class ScratchBot : public BasicBot
 public:
     ScratchBot(Position p) : BasicBot(p) { }
 
-    //bool ShouldSandbag(EuchreGame&) const;
-    bool SituationalBid(EuchreGame&) const;
+    bool ShouldSandbag(EuchreGame&) const;
+    //bool SituationalBid(EuchreGame&) const;
 };
 
 #endif
